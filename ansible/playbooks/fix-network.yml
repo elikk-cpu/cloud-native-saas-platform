@@ -1,0 +1,44 @@
+---
+- name: Fix lab network configuration
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Configure static netplan
+      ansible.builtin.copy:
+        dest: /etc/netplan/01-static.yaml
+        owner: root
+        group: root
+        mode: '0600'
+        backup: true
+        content: |
+          network:
+            version: 2
+            renderer: networkd
+            ethernets:
+              ens33:
+                dhcp4: false
+                addresses:
+                  - {{ node_ip }}/24
+                routes:
+                  - to: default
+                    via: 10.50.0.2
+                nameservers:
+                  addresses:
+                    - 10.50.0.2
+
+    - name: Validate netplan
+      ansible.builtin.command: netplan generate
+      changed_when: false
+
+    - name: Apply netplan
+      ansible.builtin.command: netplan apply
+
+    - name: Restart systemd-resolved
+      ansible.builtin.systemd:
+        name: systemd-resolved
+        state: restarted
+
+    - name: Flush DNS cache
+      ansible.builtin.command: resolvectl flush-caches
+      changed_when: false

@@ -1,0 +1,39 @@
+# Secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+
+# Kubernetes credentials
+kubeconfig
+kubeconfig.*
+*.kubeconfig
+
+# Ansible
+*.retry
+ansible-vault-password*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary / generated
+*.log
+*.bak
+*.swp
+*~
+tmp/
+dist/
+build/
