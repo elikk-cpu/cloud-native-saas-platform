@@ -1,0 +1,58 @@
+---
+- name: Common bootstrap for all lab nodes
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install common packages
+      ansible.builtin.apt:
+        name:
+          - curl
+          - wget
+          - ca-certificates
+          - gnupg
+          - lsb-release
+          - jq
+          - vim
+          - git
+          - unzip
+          - htop
+          - net-tools
+          - dnsutils
+          - chrony
+        state: present
+
+    - name: Ensure chrony is enabled and running
+      ansible.builtin.systemd:
+        name: chrony
+        enabled: true
+        state: started
+
+    - name: Add lab hosts to /etc/hosts
+      ansible.builtin.blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} CLOUD-NATIVE-SAAS LAB"
+        block: |
+          10.50.0.10 bastion
+          10.50.0.11 k8s-cp1
+          10.50.0.12 k8s-cp2
+          10.50.0.13 k8s-cp3
+          10.50.0.21 k8s-w1
+          10.50.0.22 k8s-w2
+          10.50.0.23 k8s-w3
+          10.50.0.31 db1
+          10.50.0.32 db2
+          10.50.0.33 db3
+          10.50.0.40 storage
+
+    - name: Ensure SSH service is enabled
+      ansible.builtin.systemd:
+        name: ssh
+        enabled: true
+        state: started
+
